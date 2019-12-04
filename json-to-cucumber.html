@@ -34,16 +34,16 @@
     let childRes = ""
     for (var item of Object.keys(value)) {
       if (typeof(value[item]) === "object" && value[item] !== null) {
-        keyFormat = key
+        keyFormat = `.${key}`
         if (!isNaN(key))
           keyFormat = `[${key}]`
-        parseResult = parseData(item, value[item], `${format}.${keyFormat}`);
+        parseResult = parseData(item, value[item], `${format}${keyFormat}`);
         childRes += parseResult
       } else {
-        keyFormat = key
+        keyFormat = `.${key}`
         if (!isNaN(key))
           keyFormat = `[${key}]`
-        childRes += `And response "$data..${format}.${keyFormat}.${item}" should be ${convertType(value[item])}\n`
+        childRes += `And response "$data..${format}${keyFormat}.${item}" should be ${convertType(value[item])}\n`
       }
     }
     return childRes;
