@@ -2,7 +2,7 @@
 
 ## Description
 
-Json to Cucumber is a QA helper tool for automation testing. It converts json data type responses into cucumber/gherkin form
+Json to Cucumber is a QA helper tool for automation testing. It converts json data type responses into cucumber/gherkin form.
 It converts
 ```bash
  {
