@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Json to Cucumber</title>
+</head>
+<body>
+    <p>Input Text</p>
+    <textarea id="inputJson" rows="15" cols="70"></textarea>
+    <p>Output Text</p>
+    <textarea id="outputJson" readonly rows="15" cols="70"></textarea>
+    <p/>
+    <button onclick="jsonToCucumber()">Convert</button>
+</body>
+</html>
+
+<script>
+  function jsonToCucumber() {
+    let res = "";
+    const json = JSON.parse(document.getElementById("inputJson").value)
+    for (var key of Object.keys(json)) {
+      if (typeof(json[key]) === "object" && json[key] !== null) {
+        parseResult = parseData(key, json[key]);
+        res += parseResult
+      } else {
+        res += `And response "$data..${key}" should be ${convertType(json[key])}\n`
+      }
+    }
+    document.getElementById("outputJson").value = res;
+  }
+  function parseData(key, value, format= '') {
+    let childRes = ""
+    for (var item of Object.keys(value)) {
+      if (typeof(value[item]) === "object" && value[item] !== null) {
+        parseResult = parseData(item, value[item], `${format}.${key}`);
+        childRes += parseResult
+      } else {
+        keyFormat = key
+        if (!isNaN(key))
+          keyFormat = `[${key}]`
+        childRes += `And response "$data..${format}.${keyFormat}.${item}" should be ${convertType(value[item])}\n`
+      }
+    }
+    return childRes;
+  }
+  function convertType(item) {
+    if (item === null) return `"null"`;
+
+    type = typeof(item);
+    if (type === "number" ) {
+      if (item % 1 === 0)
+        return "integer";
+      else 
+        return "float";
+    }
+    if (type === "string" ) return "string";
+    if (type === "float" ) return "float";
+    if (type === "boolean" ) return "boolean";
+  }
+</script>
+
+<style>
+  button {
+    background-color: #498bf5;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    width: 250px;
+}
+
+  textarea {
+    font-size: 16px;
+  }
+</style>
