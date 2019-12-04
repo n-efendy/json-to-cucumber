@@ -25,7 +25,7 @@
         parseResult = parseData(key, json[key]);
         res += parseResult
       } else {
-        res += `And response "$data..${key}" should be ${convertType(json[key])}\n`
+        res += `And response "$..${key}" should be ${convertType(json[key])}\n`
       }
     }
     document.getElementById("outputJson").value = res;
@@ -43,7 +43,7 @@
         keyFormat = `.${key}`
         if (!isNaN(key))
           keyFormat = `[${key}]`
-        childRes += `And response "$data..${format}${keyFormat}.${item}" should be ${convertType(value[item])}\n`
+        childRes += `And response "$..${format}${keyFormat}.${item}" should be ${convertType(value[item])}\n`
       }
     }
     return childRes;
