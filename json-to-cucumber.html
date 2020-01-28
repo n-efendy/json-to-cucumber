@@ -42,7 +42,7 @@
           expectation = convertType(json[key])
           res += `And response "$..${key}" should be ${expectation}\n`
         } else if (mode === "collect") {
-          res += `And client collects "$..${key}" as \n`
+          res += `And client collects "$..${key}" as "${key}"\n`
         }
       }
     }
@@ -87,7 +87,7 @@
         result += `And response should have ${key} matching ${expectation}\n`
         break;
       case "collect":
-        result += `And client collects ${key} as \n`
+        result += `And client collects ${key} as "${item}"\n`
         break;
       default:
         expectation = ""
