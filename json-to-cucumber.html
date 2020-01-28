@@ -10,12 +10,13 @@
     <p>Input Text</p>
     <textarea id="inputJson" rows="15" cols="70"></textarea>
     <p>Output Text</p>
-    <textarea id="outputJson" readonly rows="15" cols="70"></textarea>
+    <textarea id="outputJson" rows="15" cols="70"></textarea>
     <p/>
     <p>Options</p>
     <form action="">
       <input id="type" type="radio" name="matcher" value="type" checked="checked"> Compare Data Type<br>
       <input id="value" type="radio" name="matcher" value="value"> Compare Values<br>
+      <input id="collect" type="radio" name="matcher" value="collect"> Collect Response<br>
     </form>
     <p/>
     <button onclick="jsonToCucumber()">Convert</button>
@@ -37,15 +38,18 @@
         if (mode === "value"){
           expectation = `"${json[key]}"`
           res += `And response should have "$..${key}" matching ${expectation}\n`
-        } else {
+        } else if (mode === "type") {
           expectation = convertType(json[key])
           res += `And response "$..${key}" should be ${expectation}\n`
-        } 
+        } else if (mode === "collect") {
+          res += `And client collects "$..${key}" as \n`
+        }
       }
     }
 
     document.getElementById("outputJson").value = res;
   }
+
   function parseData(key, value, format= '') {
     let childRes = ""
     const mode = selectedMode()
@@ -62,17 +66,37 @@
         if (!isNaN(key))
           keyFormat = `[${key}]`
 
-        if (mode === "value"){
-          expectation = `"${value[item]}"`
-          childRes += `And response should have "$..${format}${keyFormat}.${item}" matching ${expectation}\n`
-        } else {
-          expectation = convertType(value[item])
-          childRes += `And response "$..${format}${keyFormat}.${item}" should be ${expectation}\n`
-        } 
+        let jsonKey = `"$..${format}${keyFormat}.${item}"`
+        childRes += resultString(mode, jsonKey, value, item )
       }
     }
     return childRes;
   }
+
+  function resultString(mode, key, value, item) {
+    let result = ""
+    let expectation = ""
+
+    switch(mode) {
+      case "type":
+        expectation = convertType(value[item])
+        result += `And response ${key} should be ${expectation}\n`
+        break;
+      case "value":
+        expectation = `"${value[item]}"`
+        result += `And response should have ${key} matching ${expectation}\n`
+        break;
+      case "collect":
+        result += `And client collects ${key} as \n`
+        break;
+      default:
+        expectation = ""
+        result = ""
+    }
+
+    return result
+  }
+
   function convertType(item) {
     if (item === null) return `"null"`;
 
@@ -87,13 +111,17 @@
     if (type === "float" ) return "float";
     if (type === "boolean" ) return "boolean";
   }
+
   function selectedMode() {
     if (document.getElementById('value').checked) {
       return document.getElementById('value').value;
+    } else if (document.getElementById('type').checked) {
+      return document.getElementById('type').value;
+    } else if (document.getElementById('collect').checked) {
+      return document.getElementById('collect').value;
     } else {
       return document.getElementById('type').value;
     }
-    return document.getElementById('type').value;
   }
 </script>
 
