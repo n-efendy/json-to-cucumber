@@ -17,6 +17,7 @@
       <input id="type" type="radio" name="matcher" value="type" checked="checked"> Compare Data Type<br>
       <input id="value" type="radio" name="matcher" value="value"> Compare Values<br>
       <input id="collect" type="radio" name="matcher" value="collect"> Collect Response<br>
+      <input id="compare" type="radio" name="matcher" value="compare"> Collect and Compare Response<br>
     </form>
     <p/>
     <button onclick="jsonToCucumber()">Convert</button>
@@ -37,12 +38,21 @@
         let expectation = ""
         if (mode === "value"){
           expectation = `"${json[key]}"`
-          res += `And response should have "$..${key}" matching ${expectation}\n`
+
+          if (expectation.includes("null")) {
+            res += `And response should have "$..${key}"\n`
+          }
+          else {
+            res += `And response should have "$..${key}" matching ${expectation}\n`
+          }
+
         } else if (mode === "type") {
           expectation = convertType(json[key])
           res += `And response "$..${key}" should be ${expectation}\n`
         } else if (mode === "collect") {
           res += `And client collects "$..${key}" as "${key}"\n`
+        } else if (mode == "compare") {
+          res += `And response should have "$..${key}" matching "${key}"\n`
         }
       }
     }
@@ -84,10 +94,19 @@
         break;
       case "value":
         expectation = `"${value[item]}"`
-        result += `And response should have ${key} matching ${expectation}\n`
+        if (expectation.includes("null")) {
+          result += `And response should have ${key}\n`
+        } else {
+          result += `And response should have ${key} matching ${expectation}\n`
+        }
         break;
       case "collect":
-        result += `And client collects ${key} as "${item}"\n`
+        collectAs = key.substr(5).replace(/\./g, '_')
+        result += `And client collects ${key} as "${collectAs}"\n`
+        break;
+      case "compare":
+      collectAs = key.substr(5).replace(/\./g, '_')
+        result += `And response should have ${key} matching "${collectAs}"\n`
         break;
       default:
         expectation = ""
@@ -119,6 +138,8 @@
       return document.getElementById('type').value;
     } else if (document.getElementById('collect').checked) {
       return document.getElementById('collect').value;
+    } else if ((document.getElementById('compare').checked)){
+      return document.getElementById('compare').value;
     } else {
       return document.getElementById('type').value;
     }
