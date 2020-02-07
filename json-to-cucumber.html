@@ -102,11 +102,11 @@
         break;
       case "collect":
         collectAs = key.substr(5).replace(/\./g, '_')
-        result += `And client collects ${key} as "${collectAs}"\n`
+        result += `And client collects ${key} as "${collectAs}\n`
         break;
       case "compare":
       collectAs = key.substr(5).replace(/\./g, '_')
-        result += `And response should have ${key} matching "${collectAs}"\n`
+        result += `And response should have ${key} matching "${collectAs}\n`
         break;
       default:
         expectation = ""
