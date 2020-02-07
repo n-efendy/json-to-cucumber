@@ -32,3 +32,5 @@ And response "$data...category.name" should be string
   yarn install
   yarn start
 ```
+Go to http://local.host:5432/
+
