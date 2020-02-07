@@ -52,7 +52,7 @@
         } else if (mode === "collect") {
           res += `And client collects "$..${key}" as "${key}"\n`
         } else if (mode == "compare") {
-          res += `And response should have "$..${key}" matching "${key}"\n`
+          res += `And response should have "$..${key}" matching "{{${key}}}"\n`
         }
       }
     }
@@ -105,8 +105,8 @@
         result += `And client collects ${key} as "${collectAs}\n`
         break;
       case "compare":
-      collectAs = key.substr(5).replace(/\./g, '_')
-        result += `And response should have ${key} matching "${collectAs}\n`
+        collectAs = key.substr(5).replace(/\./g, '_').slice(0, -1)
+        result += `And response should have ${key} matching "{{${collectAs}}}"\n`
         break;
       default:
         expectation = ""
