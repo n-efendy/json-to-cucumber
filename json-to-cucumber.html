@@ -77,7 +77,7 @@
           keyFormat = `[${key}]`
 
         let jsonKey = `"$..${format}${keyFormat}.${item}"`
-        childRes += resultString(mode, jsonKey, value, item )
+        childRes += resultString(mode, jsonKey, value, item)
       }
     }
     return childRes;
@@ -101,11 +101,11 @@
         }
         break;
       case "collect":
-        collectAs = key.substr(5).replace(/\./g, '_')
+        collectAs = sanitizeKey(key.substr(5).replace(/\./g, '_'))
         result += `And client collects ${key} as "${collectAs}\n`
         break;
       case "compare":
-        collectAs = key.substr(5).replace(/\./g, '_').slice(0, -1)
+        collectAs = sanitizeKey(key.substr(5).replace(/\./g, '_').slice(0, -1))
         result += `And response should have ${key} matching "{{${collectAs}}}"\n`
         break;
       default:
@@ -144,6 +144,16 @@
       return document.getElementById('type').value;
     }
   }
+
+  function sanitizeKey(key) {
+    if (key.startsWith("data_")) {
+      return key.substr(5)
+    } else if (key.startsWith("data[")) {
+      return key.split(/_(.+)/)[1]
+    }
+    return key
+  }
+
 </script>
 
 <style>
