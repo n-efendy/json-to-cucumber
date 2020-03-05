@@ -86,6 +86,7 @@
   function resultString(mode, key, value, item) {
     let result = ""
     let expectation = ""
+    let collectAs = ""
 
     switch(mode) {
       case "type":
@@ -101,18 +102,17 @@
         }
         break;
       case "collect":
-        collectAs = sanitizeKey(key.substr(5).replace(/\./g, '_'))
+        collectAs = sanitizeKey(key.substr(5).replace(/\./g, '_')).replace(/\[(.*?)\]/g,'')
         result += `And client collects ${key} as "${collectAs}\n`
         break;
       case "compare":
-        collectAs = sanitizeKey(key.substr(5).replace(/\./g, '_').slice(0, -1))
+        collectAs = sanitizeKey(key.substr(5).replace(/\./g, '_').slice(0, -1)).replace(/\[(.*?)\]/g,'')
         result += `And response should have ${key} matching "{{${collectAs}}}"\n`
         break;
       default:
         expectation = ""
         result = ""
     }
-
     return result
   }
 
