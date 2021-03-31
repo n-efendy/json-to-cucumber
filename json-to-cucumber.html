@@ -13,7 +13,7 @@
     <textarea id="outputJson" rows="15" cols="70"></textarea>
     <p/>
     <p>Options</p>
-    <form action="">
+    <form action="" id="type-form">
       <input id="type" type="radio" name="matcher" value="type" checked="checked"> Compare Data Type<br>
       <input id="value" type="radio" name="matcher" value="value"> Compare Values<br>
       <input id="collect" type="radio" name="matcher" value="collect"> Collect Response<br>
@@ -25,10 +25,12 @@
 </html>
 
 <script>
+  let mode;
   function jsonToCucumber() {
     let res = "";
     const json = JSON.parse(document.getElementById("inputJson").value)
-    const mode = selectedMode()
+    mode = Array.from(document.getElementById('type-form').elements)
+                      .filter(elem => elem.checked)[0].value || 'type';
 
     for (var key of Object.keys(json)) {
       if (typeof(json[key]) === "object" && json[key] !== null) {
@@ -60,23 +62,33 @@
     document.getElementById("outputJson").value = res;
   }
 
-  function parseData(key, value, format= '') {
+  function parseData(key, value, format= '', parentArray = false) {
     let childRes = ""
-    const mode = selectedMode()
+  
 
     for (var item of Object.keys(value)) {
+  
       if (typeof(value[item]) === "object" && value[item] !== null) {
         keyFormat = `.${key}`
-        if (!isNaN(key))
+        if (!isNaN(key) || parentArray)
           keyFormat = `[${key}]`
-        parseResult = parseData(item, value[item], `${format}${keyFormat}`);
+        parseResult = parseData(item, value[item], `${format}${keyFormat}`, Array.isArray(value));
         childRes += parseResult
+
       } else {
         keyFormat = `.${key}`
-        if (!isNaN(key))
+        if (!isNaN(key) )
           keyFormat = `[${key}]`
+        let jsonKey = "";
+        if ( Array.isArray(value)){
+          let renderedItem = `[${item}]`
+          jsonKey = `"$..${format}${keyFormat}${renderedItem}"`
+        }
+        else{
+           jsonKey = `"$..${format}${keyFormat}.${item}"`
 
-        let jsonKey = `"$..${format}${keyFormat}.${item}"`
+        }
+        console.log(jsonKey);
         childRes += resultString(mode, jsonKey, value, item)
       }
     }
@@ -129,20 +141,6 @@
     if (type === "string" ) return "string";
     if (type === "float" ) return "float";
     if (type === "boolean" ) return "boolean";
-  }
-
-  function selectedMode() {
-    if (document.getElementById('value').checked) {
-      return document.getElementById('value').value;
-    } else if (document.getElementById('type').checked) {
-      return document.getElementById('type').value;
-    } else if (document.getElementById('collect').checked) {
-      return document.getElementById('collect').value;
-    } else if ((document.getElementById('compare').checked)){
-      return document.getElementById('compare').value;
-    } else {
-      return document.getElementById('type').value;
-    }
   }
 
   function sanitizeKey(key) {
